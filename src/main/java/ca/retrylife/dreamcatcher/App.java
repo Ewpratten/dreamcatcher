@@ -3,12 +3,39 @@
  */
 package ca.retrylife.dreamcatcher;
 
-public class App {
-    public String getGreeting() {
-        return "Hello world.";
-    }
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ca.retrylife.dreamcatcher.service.ServiceManager;
+import ca.retrylife.dreamcatcher.service.services.ReverseBeaconNetworkCWService;
+
+public class App implements Runnable {
+
+    // Logger
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        new App().run();
+    }
+
+    @Override
+    public void run() {
+    
+        logger.info("Starting DreamCatcher");
+
+        // Register all services
+        logger.info("Registering all services");
+        ServiceManager.getInstance().register(new ReverseBeaconNetworkCWService());
+
+        // Start all services
+        logger.info("Starting all services");
+        ServiceManager.getInstance().launch();
+
+        // Busy loop
+        while (true) {
+        }
+        
+        
+
     }
 }

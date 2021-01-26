@@ -30,7 +30,7 @@ public abstract class ReverseBeaconNetworkServiceBase implements Service {
     // Network connection info
     private final int remotePort;
 
-    public ReverseBeaconNetworkServiceBase(int remotePort) {
+    protected ReverseBeaconNetworkServiceBase(int remotePort) {
         this.remotePort = remotePort;
 
         // Set up threads
