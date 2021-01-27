@@ -2,6 +2,8 @@ package ca.retrylife.dreamcatcher.server;
 
 import ca.retrylife.dreamcatcher.event.EventBase;
 
+import java.util.ConcurrentModificationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,10 @@ public class MessageSender {
         // Get JSON data
         String json = event.toJson();
 
-        HTTPServer.getInstance().send(json);
+        try {
+            HTTPServer.getInstance().send(json);
+        } catch (ConcurrentModificationException e) {
+        }
     }
 
 }
