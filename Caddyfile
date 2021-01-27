@@ -1,0 +1,10 @@
+localhost {
+
+    route /waterfall {
+        uri replace /waterfall /
+        reverse_proxy http://localhost:8887
+    }
+
+    root / /work/src/main/html/index.html
+
+}
