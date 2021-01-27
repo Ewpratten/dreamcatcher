@@ -36,6 +36,7 @@
             <div class="col-xs-12 col-md-6">
                 <div id="notifications_json" style="display: none;"></div>
                 <div id="notifications"></div>
+
             </div>
             <div class="col-xs-12 col-md-3">
                 <div class="panel panel-default">
@@ -55,14 +56,29 @@
     <script>
 
         // Websocket connection
-        var socket = new WebSocket(`wss://${window.location.hostname}/waterfall`);
+        var protocol = (window.location.protocol == 'http:') ? 'ws:' : 'wss:';
+        var socket = new WebSocket(`${protocol}//${window.location.hostname}:${window.location.port}/waterfall`);
 
         socket.onmessage = function (event) {
 
             // Get data
-            var data = event.data;
+            var data = JSON.parse(event.data);
 
-            // Add to page
+            // Correct date
+            var date = new Date(data.timestamp);
+
+            // Build element
+            var element = `
+            <div class="panel">
+                <div class="panel-heading">${data.type}<span class="pull-right">${date.toTimeString()}</span></div>
+                <div class="panel-body"><strong>RAW</strong>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            </div>`;
+
+            // Prepend the element to the notifications list
+            var notifList = document.getElementById("notifications").innerHTML;
+            document.getElementById("notifications").innerHTML = element + notifList;
         }
 
     </script>

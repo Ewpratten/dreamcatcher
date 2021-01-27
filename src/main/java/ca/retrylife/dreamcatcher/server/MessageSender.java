@@ -33,7 +33,7 @@ public class MessageSender {
         // Get JSON data
         String json = event.toJson();
 
-        WSServer.getInstance().send(json);
+        HTTPServer.getInstance().send(json);
     }
 
 }

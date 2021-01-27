@@ -14,11 +14,10 @@ public class RBNEvent extends EventBase {
     String spotted;
     double frequency;
     String mode;
-    long timestamp;
     Map<String, String> data = new HashMap<>();
 
     public RBNEvent() {
-        super.type = "reverse_beacon_spot";
+        super.setType("reverse_beacon_spot");
     }
 
     @Override

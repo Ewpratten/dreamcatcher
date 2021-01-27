@@ -44,7 +44,7 @@ public class ReverseBeaconNetworkCWService extends ReverseBeaconNetworkServiceBa
         event.setTimestamp(System.currentTimeMillis());
         event.getData().put("snr", matcher.group(5).replace("\\s*", ""));
         event.getData().put("speed", matcher.group(6).replace("\\s*", ""));
-        event.getData().put("message", matcher.group(7).replace("\\s*", ""));
+        event.getData().put("message", matcher.group(7).replace(" ", ""));
 
         return event;
 
