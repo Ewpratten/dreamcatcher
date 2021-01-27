@@ -25,6 +25,11 @@ public class AuthManager {
         // TODO: This is temp
         return "va3zza";
     }
+
+    public String getAPRSKey() {
+        // TODO: This is temp
+        return "user test pass -1";
+    }
     
     
 }
