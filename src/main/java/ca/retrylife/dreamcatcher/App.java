@@ -6,8 +6,10 @@ package ca.retrylife.dreamcatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.retrylife.dreamcatcher.server.WSServer;
 import ca.retrylife.dreamcatcher.service.ServiceManager;
 import ca.retrylife.dreamcatcher.service.services.ReverseBeaconNetworkCWService;
+import ca.retrylife.dreamcatcher.service.services.ReverseBeaconNetworkFT8Service;
 
 public class App implements Runnable {
 
@@ -26,6 +28,10 @@ public class App implements Runnable {
         // Register all services
         logger.info("Registering all services");
         ServiceManager.getInstance().register(new ReverseBeaconNetworkCWService());
+        ServiceManager.getInstance().register(new ReverseBeaconNetworkFT8Service());
+
+        // Start WSS
+        WSServer.getInstance().start();
 
         // Start all services
         logger.info("Starting all services");

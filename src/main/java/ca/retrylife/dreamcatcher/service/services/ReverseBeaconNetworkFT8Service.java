@@ -9,18 +9,18 @@ import org.slf4j.LoggerFactory;
 import ca.retrylife.dreamcatcher.event.EventBase;
 import ca.retrylife.dreamcatcher.event.events.RBNEvent;
 
-public class ReverseBeaconNetworkCWService extends ReverseBeaconNetworkServiceBase {
+public class ReverseBeaconNetworkFT8Service extends ReverseBeaconNetworkServiceBase {
 
     // Logger
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // Pattern matcher for RBN information
     private static final Pattern INFO_MATCH_PATTERN = Pattern.compile(
-            "DX de ([A-Z\\d\\/-]+)-#:\\s*([\\d.]+)\\s+([A-Z\\d\\/-]+)\\s+([A-Z\\d]+)\\s+([\\d-]+) dB\\s+(\\d+) [WPMBPS]+\\s+([A-Za-z\\d ]+)\\s*([0-9]{4})Z",
+            "DX de ([A-Z\\d-]+)-#:\\s*([\\d.]+)\\s+([A-Z\\d-]+)\\s+([A-Z\\d]+)\\s+([\\d-]+) dB\\s+([A-Z\\d]{4}){0,4}",
             Pattern.MULTILINE);
 
-    public ReverseBeaconNetworkCWService() {
-        super(7000);
+    public ReverseBeaconNetworkFT8Service() {
+        super(7001);
     }
 
     @Override
@@ -43,8 +43,11 @@ public class ReverseBeaconNetworkCWService extends ReverseBeaconNetworkServiceBa
         event.setMode(matcher.group(4).replace("\\s*", ""));
         event.setTimestamp(System.currentTimeMillis());
         event.getData().put("snr", matcher.group(5).replace("\\s*", ""));
-        event.getData().put("speed", matcher.group(6).replace("\\s*", ""));
-        event.getData().put("message", matcher.group(7).replace("\\s*", ""));
+        if (matcher.group(6) != null) {
+            event.getData().put("grid", matcher.group(6).replace("\\s*", ""));
+        } else {
+            event.getData().put("grid", null);
+        }
 
         return event;
 

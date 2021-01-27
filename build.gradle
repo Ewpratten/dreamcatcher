@@ -12,6 +12,9 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application.
     id 'application'
+
+    // Lombok
+    id "io.freefair.lombok" version "5.3.0"
 }
 
 repositories {
@@ -34,6 +37,15 @@ dependencies {
 
     // Websockets
     compile "org.java-websocket:Java-WebSocket:1.5.1"
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+	annotationProcessor 'org.projectlombok:lombok:1.18.16'
+	testCompileOnly 'org.projectlombok:lombok:1.18.16'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
 
 application {

@@ -3,7 +3,6 @@ package ca.retrylife.dreamcatcher.service.services;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -11,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.retrylife.dreamcatcher.AuthManager;
+import ca.retrylife.dreamcatcher.event.EventBase;
+import ca.retrylife.dreamcatcher.server.MessageSender;
 import ca.retrylife.dreamcatcher.service.Service;
 
 /**
@@ -40,6 +41,7 @@ public abstract class ReverseBeaconNetworkServiceBase implements Service {
     private void execute() {
 
         // Open a connection
+        logger.info(String.format("Opening connection to %s:%d", RBN_TELNET_ENDPOINT, this.remotePort));
         try (Socket socket = new Socket(RBN_TELNET_ENDPOINT, this.remotePort)) {
 
             // Get in and out streams
@@ -47,26 +49,56 @@ public abstract class ReverseBeaconNetworkServiceBase implements Service {
             PrintWriter out = new PrintWriter(socket.getOutputStream());
 
             // Consume the login message
-            while (in.readLine() != null) {
+            logger.debug("Consuming login prompt");
+            int chr;
+            char lastChr = ' ';
+            while (((chr = in.read()) != -1) && lastChr != ':') {
+                lastChr = (char) chr;
             }
 
             // Write the login information
-            out.println(AuthManager.getInstance().getReverseBeaconNetworkKey());
+            logger.info("Logging in to RBN");
+            out.write(AuthManager.getInstance().getReverseBeaconNetworkKey() + "\r\n\r\n");
+            out.flush();
+            logger.debug("Logged in");
 
             // Pass along every new bit of information to the subclass
-            String line;
-            while ((line = in.readLine()) != null) {
-                this.handleTelnetMessage(line);
+            StringBuilder messageBuilder = new StringBuilder();
+            int nextChr;
+            while (true) {
+
+                // Consume a line
+                while ((nextChr = in.read()) != -1) {
+                    if (((char) nextChr) == '\r') {
+                        in.read();
+                        break;
+                    } else {
+                        messageBuilder.append((char) nextChr);
+                    }
+                }
+
+                // Handle the message
+                String message = messageBuilder.toString();
+                logger.debug(message);
+                EventBase event = this.handleTelnetMessage(message);
+
+                // Send the event
+                if (event != null) {
+                    MessageSender.getInstance().sendEvent(event);
+                }
+
+                // Clear the buffer
+                messageBuilder = new StringBuilder();
             }
 
         } catch (IOException e) {
-            logger.error("Failed to open connection to %s:%d", RBN_TELNET_ENDPOINT, this.remotePort);
+            logger.error(String.format("Failed to open connection to %s:%d", RBN_TELNET_ENDPOINT, this.remotePort));
             return;
         }
 
     }
 
-    protected abstract void handleTelnetMessage(String message);
+    protected abstract EventBase handleTelnetMessage(String message);
 
     @Override
     public void launch() {
