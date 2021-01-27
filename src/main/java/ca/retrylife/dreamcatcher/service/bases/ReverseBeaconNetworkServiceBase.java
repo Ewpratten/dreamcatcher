@@ -1,4 +1,4 @@
-package ca.retrylife.dreamcatcher.service.services;
+package ca.retrylife.dreamcatcher.service.bases;
 
 import java.io.BufferedReader;
 import java.io.IOException;

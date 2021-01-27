@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import ca.retrylife.dreamcatcher.event.EventBase;
 import ca.retrylife.dreamcatcher.event.events.RBNEvent;
+import ca.retrylife.dreamcatcher.service.bases.ReverseBeaconNetworkServiceBase;
 
 public class ReverseBeaconNetworkFT8Service extends ReverseBeaconNetworkServiceBase {
 
@@ -42,11 +43,9 @@ public class ReverseBeaconNetworkFT8Service extends ReverseBeaconNetworkServiceB
         event.setSpotted(matcher.group(3).replace("\\s*", ""));
         event.setMode(matcher.group(4).replace("\\s*", ""));
         event.setTimestamp(System.currentTimeMillis());
-        event.getData().put("snr", matcher.group(5).replace("\\s*", ""));
+        event.setSnr(Integer.parseInt(matcher.group(5).replace("\\s*", "")));
         if (matcher.group(6) != null) {
-            event.getData().put("grid", matcher.group(6).replace("\\s*", ""));
-        } else {
-            event.getData().put("grid", null);
+            event.setGrid(matcher.group(6).replace("\\s*", ""));
         }
 
         return event;
