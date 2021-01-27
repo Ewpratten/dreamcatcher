@@ -4,6 +4,16 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
 
     <title>DreamCatcher Demo</title>
+
+    <style>
+        .panel {
+            box-shadow: 0 3px 3px rgba(0, 0, 0, .05) !important;
+        }
+
+        .panel-heading {
+            background-color: #fbf9f9 !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -32,12 +42,7 @@
 
     <div class="container" style="margin-top: 80px">
         <div class="row">
-            <div class="col-xs-12 col-md-3"></div>
-            <div class="col-xs-12 col-md-6">
-                <div id="notifications_json" style="display: none;"></div>
-                <div id="notifications"></div>
 
-            </div>
             <div class="col-xs-12 col-md-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">About</div>
@@ -48,6 +53,27 @@
                     </div>
                 </div>
 
+                <div class="panel panel-default">
+                    <div class="panel-heading">Statistics</div>
+                    <div class="panel-body">
+                        <p>Currently receiving events at: <strong><span id="events-per-sec">10</span> per
+                                second</strong></p>
+                        <p>Total events received: <strong><span id="events-total">100</span></strong></p>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Usage</div>
+                    <div class="panel-body">
+                        <p>Want to use this data in your application? Point a websocket client at <pre id="endpoint">example.com</pre></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-md-6">
+                <div id="notifications_json" style="display: none;"></div>
+                <div id="notifications"></div>
 
             </div>
         </div>
@@ -57,29 +83,59 @@
 
         // Websocket connection
         var protocol = (window.location.protocol == 'http:') ? 'ws:' : 'wss:';
-        var socket = new WebSocket(`${protocol}//${window.location.hostname}:${window.location.port}/waterfall`);
+        var endpoint = `${protocol}//${window.location.hostname}:${window.location.port}/waterfall`;
+        var socket = new WebSocket(endpoint);
+        document.getElementById("endpoint").innerText = endpoint;
+
+        // Message buffer
+        var messageBuffer = [];
+        var messageCount = 0;
+        var messageCountTotal = 0;
 
         socket.onmessage = function (event) {
 
             // Get data
             var data = JSON.parse(event.data);
 
-            // Correct date
-            var date = new Date(data.timestamp);
+            // Get info
+            var type = data.type;
+            var date = new Date(data.timestamp).toISOString();
+            var contents = JSON.stringify(data, null, 2);
 
             // Build element
             var element = `
             <div class="panel">
-                <div class="panel-heading">${data.type}<span class="pull-right">${date.toTimeString()}</span></div>
+                <div class="panel-heading">${type}<span class="pull-right">${date}</span></div>
                 <div class="panel-body"><strong>RAW</strong>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <pre>${contents}</pre>
                 </div>
             </div>`;
 
-            // Prepend the element to the notifications list
-            var notifList = document.getElementById("notifications").innerHTML;
-            document.getElementById("notifications").innerHTML = element + notifList;
+            // Prepend the element to the buffer
+            messageBuffer.unshift(element);
+            messageBuffer = messageBuffer.slice(0, 100);
+
+            // Handle counters
+            messageCount++;
+            messageCountTotal++;
         }
+
+        setInterval(() => {
+
+            document.getElementById("notifications").innerHTML = messageBuffer.join("\n");
+
+        }, 250);
+
+        setInterval(() => {
+
+            // Set per-second
+            document.getElementById("events-per-sec").innerText = messageCount;
+            messageCount = 0;
+
+            // Set total
+            document.getElementById("events-total").innerText = messageCountTotal;
+
+        }, 1000);
 
     </script>
 

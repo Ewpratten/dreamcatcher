@@ -29,9 +29,9 @@ public class App implements Runnable {
 
         // Register all services
         logger.info("Registering all services");
-        // ServiceManager.getInstance().register(new ReverseBeaconNetworkCWService());
-        // ServiceManager.getInstance().register(new ReverseBeaconNetworkFT8Service());
-        // ServiceManager.getInstance().register(new DXWatchService());
+        ServiceManager.getInstance().register(new ReverseBeaconNetworkCWService());
+        ServiceManager.getInstance().register(new ReverseBeaconNetworkFT8Service());
+        ServiceManager.getInstance().register(new DXWatchService());
         ServiceManager.getInstance().register(new APRSFIService());
 
         // Start WSS
